@@ -4,38 +4,109 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fikret Aras Bulut | Ders Takip Paneli</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#0f172a,#111827,#1e293b);color:#fff;padding:20px;min-height:100vh}.wrap{max-width:980px;margin:auto}.hero{padding:24px;border-radius:24px;background:rgba(255,255,255,.08);backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(0,0,0,.25);margin-bottom:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.card{background:rgba(255,255,255,.08);padding:18px;border-radius:22px;backdrop-filter:blur(8px)}h1{margin:0 0 8px;font-size:32px}.muted{color:#d1d5db}.big{font-size:28px;font-weight:700}input,button{width:100%;padding:12px;border-radius:14px;border:none;margin-top:10px}input{background:#e5e7eb}button{background:#22d3ee;font-weight:700;cursor:pointer}.tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#334155;margin-top:8px}@media(max-width:600px){h1{font-size:24px}.big{font-size:22px}}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#0f172a,#111827,#1e293b);color:#fff;padding:20px;min-height:100vh}.wrap{max-width:980px;margin:auto}.hero{padding:24px;border-radius:24px;background:rgba(255,255,255,.08);backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(0,0,0,.25);margin-bottom:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.card{background:rgba(255,255,255,.08);padding:18px;border-radius:22px;backdrop-filter:blur(8px)}h1{margin:0 0 8px;font-size:32px}.muted{color:#d1d5db}.big{font-size:28px;font-weight:700}input,button{width:100%;padding:12px;border-radius:14px;border:none;margin-top:10px}input{background:#e5e7eb}button{background:#22d3ee;font-weight:700;cursor:pointer}.tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#334155;margin-top:8px}.daily-list{margin-top:10px;padding:0;list-style:none}.daily-item{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,0.1)}.daily-item:last-child{border:none}.active-lesson{background:rgba(34,211,238,0.2);border-radius:10px}@media(max-width:600px){h1{font-size:24px}.big{font-size:22px}}
 </style>
 </head>
 <body>
 <div class='wrap'>
-<div class='hero'>
-<h1>Fikret Aras Bulut | Ders Takip Paneli</h1>
-<div class='muted'>Fizik Öğretmeni Haftalık Program Sistemi</div>
-<div class='tag'>Canlı Takip • Akıllı Saat Algılama • Mobil Uyumlu</div>
+    <div class='hero'>
+        <h1>Fikret Aras Bulut | Ders Takip Paneli</h1>
+        <div class='muted'>Fizik Öğretmeni Haftalık Program Sistemi</div>
+        <div class='tag'>Canlı Takip • Akıllı Geri Sayım • Günlük Plan</div>
+    </div>
+    
+    <div class='grid'>
+        <div class='card'><div class='muted'>Tarih / Saat</div><div id='now' class='big'></div></div>
+        <div class='card'><div class='muted'>Şu An</div><div id='lesson' class='big'>Yükleniyor...</div></div>
+        <div class='card'><div class='muted'>Durum</div><div id='next' class='big'>-</div></div>
+        <div class='card'><div class='muted'>Bugünkü Toplam</div><div id='count' class='big'>-</div></div>
+    </div>
+
+    <div class='card' style='margin-top:18px'>
+        <h2 style='margin-top:0; font-size:20px; color:#22d3ee'>📅 Bugünün Program Akışı</h2>
+        <div id='dailySchedule' class='daily-list'></div>
+    </div>
+
+    <div class='card' style='margin-top:18px'>
+        <h2 style='margin-top:0; font-size:20px'>Tarih ve Saat Sorgulama</h2>
+        <input type='date' id='date'>
+        <input type='text' id='time' placeholder='Örn: 11 / 11:00 / 8.5'>
+        <button onclick='queryLesson()'>Dersi Sorgula</button>
+        <div id='result' style='margin-top:14px;font-size:20px'></div>
+    </div>
 </div>
-<div class='grid'>
-<div class='card'><div class='muted'>Tarih / Saat</div><div id='now' class='big'></div></div>
-<div class='card'><div class='muted'>Şu An</div><div id='lesson' class='big'>Yükleniyor...</div></div>
-<div class='card'><div class='muted'>Sonraki Ders</div><div id='next' class='big'>-</div></div>
-<div class='card'><div class='muted'>Bugünkü Durum</div><div id='count' class='big'>-</div></div>
-</div>
-<div class='card' style='margin-top:18px'>
-<h2 style='margin-top:0'>Tarih ve Saat Sorgulama</h2>
-<input type='date' id='date'>
-<input type='text' id='time' placeholder='Örn: 11 / 11:00 / 8.5 / 08.00'>
-<button onclick='queryLesson()'>Dersi Sorgula</button>
-<div id='result' style='margin-top:14px;font-size:20px'></div>
-</div>
-</div>
+
 <script>
 const data={1:[['10:30','11:10','11/D'],['11:20','12:00','11/D'],['13:00','13:40','11/B'],['13:50','14:30','11/B'],['14:40','15:20','11/D'],['15:30','16:10','11/D']],2:[['10:30','11:10','11/C'],['11:20','12:00','11/C'],['13:00','13:40','11/C'],['13:50','14:30','11/C'],['14:40','15:20','11/B'],['15:30','16:10','11/B']],3:[['11:20','12:00','11/A'],['13:00','13:40','11/A'],['13:50','14:30','11/A'],['14:40','15:20','11/A'],['15:30','16:10','11/A']],4:[['08:50','09:30','11/C'],['09:40','10:20','11/C'],['10:30','11:10','11/D'],['11:20','12:00','11/D'],['13:00','13:40','11/B'],['13:50','14:30','11/B'],['14:40','15:20','11/A'],['15:30','16:10','11/A']],5:[]};
+
 function toMin(s){let p=s.split(':');return +p[0]*60 + +p[1]}
-function parseInput(v){v=v.trim().replace(',', '.');if(v.includes(':')){let p=v.split(':');return (+p[0])*60 + (+p[1]||0)}let n=parseFloat(v);if(isNaN(n))return null;let h=Math.floor(n),m=Math.round((n-h)*60);return h*60+m}
+
+function update(){
+    let d=new Date(), day=d.getDay(), min=d.getHours()*60+d.getMinutes();
+    now.textContent=d.toLocaleString('tr-TR');
+
+    if(day===0||day===6||(day===5 && data[5].length===0)){
+        lesson.textContent='Tatil'; next.textContent='Dinlenme Günü';
+        dailySchedule.innerHTML = 'Bugün planlanmış ders bulunmuyor.';
+        return;
+    }
+
+    let arr=data[day], cur=null, nxt=null;
+    count.textContent=arr.length+' ders';
+
+    // Günlük listeyi oluşturma
+    let html = '';
+    arr.forEach((item, index) => {
+        let s = toMin(item[0]), e = toMin(item[1]);
+        let isActive = (min >= s && min < e);
+        let isPast = (min >= e);
+        
+        html += `<div class="daily-item ${isActive ? 'active-lesson' : ''}" style="opacity: ${isPast ? '0.5' : '1'}">
+            <span><b>${item[0]} - ${item[1]}</b></span>
+            <span>${item[2]} Fizik</span>
+            <span>${isActive ? '● ŞU AN' : (isPast ? 'Tamamlandı' : 'Bekliyor')}</span>
+        </div>`;
+    });
+    dailySchedule.innerHTML = html;
+
+    // Durum tespiti
+    if (min < toMin(arr[0][0])) {
+        lesson.textContent = 'Henüz Başlamadı';
+        next.textContent = 'İlk Ders: ' + arr[0][0];
+    } else {
+        for(let i=0; i<arr.length; i++){
+            let start=toMin(arr[i][0]), end=toMin(arr[i][1]);
+            if(min >= start && min < end){
+                cur = {name: arr[i][2], rem: end - min, type: 'ders'};
+                nxt = arr[i+1]; break;
+            } else if(i < arr.length - 1){
+                let nextStart = toMin(arr[i+1][0]);
+                if(min >= end && min < nextStart){
+                    cur = {rem: nextStart - min, type: 'break'};
+                    nxt = arr[i+1]; break;
+                }
+            }
+        }
+        if(cur){
+            if(cur.type === 'ders'){
+                lesson.textContent = cur.name + ' Fizik';
+                next.textContent = 'Bitişe: ' + cur.rem + ' dk';
+            } else {
+                lesson.textContent = cur.rem > 30 ? 'Öğle Arası 🍴' : 'Teneffüs ☕';
+                next.textContent = nxt[2] + ' (' + cur.rem + ' dk)';
+            }
+        } else {
+            lesson.textContent = 'Dersler Bitti';
+            next.textContent = 'İyi akşamlar!';
+        }
+    }
+}
+setInterval(update, 1000); update();
+
+// Sorgulama fonksiyonu (Aynı kalıyor)
+function parseInput(v){v=v.trim().replace(',', '.');if(v.includes(':')){let p=v.split(':');return (+p[0])*60+(+p[1]||0)}let n=parseFloat(v);if(isNaN(n))return null;let h=Math.floor(n),m=Math.round((n-h)*60);return h*60+m}
 function find(day,min){let arr=data[day]||[];for(let i=0;i<arr.length;i++){let a=toMin(arr[i][0]),b=toMin(arr[i][1]);if(min>=a&&min<b)return{cur:arr[i],i};if(min<a)return{next:arr[i],i}}return{}}
-function update(){let d=new Date(),day=d.getDay(),min=d.getHours()*60+d.getMinutes();now.textContent=d.toLocaleString('tr-TR');if(day===0||day===6||day===5&&data[5].length===0){lesson.textContent='Bugün ders yok';next.textContent='Dinlenme günü';count.textContent='0 ders';return}let r=find(day,min),arr=data[day];count.textContent=arr.length+' ders';if(r.cur){lesson.textContent=r.cur[2]+' Fizik';let nx=arr[r.i+1];next.textContent=nx?nx[2]+' '+nx[0]:'Bugün bitti'}else{lesson.textContent='Şu an boşluk';next.textContent=r.next?r.next[2]+' '+r.next[0]:'Bugün ders yok'}}
-function queryLesson(){let dt=date.value,tm=time.value;if(!dt||!tm){result.textContent='Tarih ve saat giriniz.';return}let day=new Date(dt).getDay();if(day===0||day===6||day===5&&data[5].length===0){result.textContent='Bu günde ders yok.';return}let min=parseInput(tm);if(min==null||min<0||min>=1440){result.textContent='Geçerli saat giriniz.';return}let r=find(day,min);result.textContent=r.cur?'O anda ders: '+r.cur[2]+' Fizik ('+r.cur[0]+'-'+r.cur[1]+')':'Bu saatte ders yok.'}
-setInterval(update,1000);update();
+function queryLesson(){let dt=date.value,tm=time.value;if(!dt||!tm){result.textContent='Giriş yapın.';return}let day=new Date(dt).getDay();let min=parseInput(tm);let r=find(day,min);result.textContent=r.cur?'Ders: '+r.cur[2]:'Ders yok.';}
 </script>
 </body>
 </html>
