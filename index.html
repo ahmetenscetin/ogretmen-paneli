@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fikret Aras Bulut | Ders Takip Paneli</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#0f172a,#111827,#1e293b);color:#fff;padding:20px;min-height:100vh}.wrap{max-width:980px;margin:auto}.hero{padding:24px;border-radius:24px;background:rgba(255,255,255,.08);backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(0,0,0,.25);margin-bottom:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.card{background:rgba(255,255,255,.08);padding:18px;border-radius:22px;backdrop-filter:blur(8px)}h1{margin:0 0 8px;font-size:32px}.muted{color:#d1d5db}.big{font-size:28px;font-weight:700}input,button{width:100%;padding:12px;border-radius:14px;border:none;margin-top:10px}input{background:#e5e7eb}button{background:#22d3ee;font-weight:700;cursor:pointer}.tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#334155;margin-top:8px}.daily-list{margin-top:10px;padding:0;list-style:none}.daily-item{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,0.1)}.daily-item:last-child{border:none}.active-lesson{background:rgba(34,211,238,0.2);border-radius:10px}@media(max-width:600px){h1{font-size:24px}.big{font-size:22px}}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#0f172a,#111827,#1e293b);color:#fff;padding:20px;min-height:100vh}.wrap{max-width:980px;margin:auto}.hero{padding:24px;border-radius:24px;background:rgba(255,255,255,.08);backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(0,0,0,.25);margin-bottom:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.card{background:rgba(255,255,255,.08);padding:18px;border-radius:22px;backdrop-filter:blur(8px)}h1{margin:0 0 8px;font-size:32px}.muted{color:#d1d5db}.big{font-size:28px;font-weight:700}input,button{width:100%;padding:12px;border-radius:14px;border:none;margin-top:10px}input{background:#e5e7eb;color:#000}button{background:#22d3ee;font-weight:700;cursor:pointer;color:#0f172a}.tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#334155;margin-top:8px}.daily-list{margin-top:10px;padding:0;list-style:none}.daily-item{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);font-size:14px}.daily-item:last-child{border:none}.active-lesson{background:rgba(34,211,238,0.2);border-radius:10px;color:#22d3ee;font-weight:bold}@media(max-width:600px){h1{font-size:24px}.big{font-size:22px}.daily-item{font-size:12px}}
 </style>
 </head>
 <body>
@@ -12,7 +12,7 @@
     <div class='hero'>
         <h1>Fikret Aras Bulut | Ders Takip Paneli</h1>
         <div class='muted'>Fizik Öğretmeni Haftalık Program Sistemi</div>
-        <div class='tag'>Canlı Takip • Akıllı Geri Sayım • Günlük Plan</div>
+        <div class='tag'>V3.0 • Canlı Takip • Akıllı Geri Sayım</div>
     </div>
     
     <div class='grid'>
@@ -42,7 +42,7 @@ const data={1:[['10:30','11:10','11/D'],['11:20','12:00','11/D'],['13:00','13:40
 function toMin(s){let p=s.split(':');return +p[0]*60 + +p[1]}
 
 function update(){
-    let d=new Date(), day=d.getDay(), min=d.getHours()*60+d.getMinutes();
+    let d=new Date(), day=d.getDay(), h=d.getHours(), m=d.getMinutes(), min=h*60+m;
     now.textContent=d.toLocaleString('tr-TR');
 
     if(day===0||day===6||(day===5 && data[5].length===0)){
@@ -54,22 +54,21 @@ function update(){
     let arr=data[day], cur=null, nxt=null;
     count.textContent=arr.length+' ders';
 
-    // Günlük listeyi oluşturma
+    // Günlük Liste Oluşturma
     let html = '';
-    arr.forEach((item, index) => {
+    arr.forEach((item) => {
         let s = toMin(item[0]), e = toMin(item[1]);
         let isActive = (min >= s && min < e);
         let isPast = (min >= e);
-        
         html += `<div class="daily-item ${isActive ? 'active-lesson' : ''}" style="opacity: ${isPast ? '0.5' : '1'}">
-            <span><b>${item[0]} - ${item[1]}</b></span>
+            <span><b>${item[0]}-${item[1]}</b></span>
             <span>${item[2]} Fizik</span>
-            <span>${isActive ? '● ŞU AN' : (isPast ? 'Tamamlandı' : 'Bekliyor')}</span>
+            <span>${isActive ? '● ŞU AN' : (isPast ? 'Bitti' : 'Bekliyor')}</span>
         </div>`;
     });
     dailySchedule.innerHTML = html;
 
-    // Durum tespiti
+    // Şu anki durum tespiti
     if (min < toMin(arr[0][0])) {
         lesson.textContent = 'Henüz Başlamadı';
         next.textContent = 'İlk Ders: ' + arr[0][0];
@@ -101,12 +100,25 @@ function update(){
         }
     }
 }
-setInterval(update, 1000); update();
 
-// Sorgulama fonksiyonu (Aynı kalıyor)
+// Sorgulama Fonksiyonları
 function parseInput(v){v=v.trim().replace(',', '.');if(v.includes(':')){let p=v.split(':');return (+p[0])*60+(+p[1]||0)}let n=parseFloat(v);if(isNaN(n))return null;let h=Math.floor(n),m=Math.round((n-h)*60);return h*60+m}
 function find(day,min){let arr=data[day]||[];for(let i=0;i<arr.length;i++){let a=toMin(arr[i][0]),b=toMin(arr[i][1]);if(min>=a&&min<b)return{cur:arr[i],i};if(min<a)return{next:arr[i],i}}return{}}
-function queryLesson(){let dt=date.value,tm=time.value;if(!dt||!tm){result.textContent='Giriş yapın.';return}let day=new Date(dt).getDay();let min=parseInput(tm);let r=find(day,min);result.textContent=r.cur?'Ders: '+r.cur[2]:'Ders yok.';}
+
+function queryLesson(){
+    let dt=date.value, tm=time.value;
+    if(!dt||!tm){result.innerHTML='Giriş yapın.';return}
+    let day=new Date(dt).getDay();
+    let min=parseInput(tm);
+    let r=find(day,min);
+    if(r.cur){
+        result.innerHTML = `O anda ders: <b>${r.cur[2]} Fizik</b><br><small style="color:#22d3ee">${r.cur[0]} - ${r.cur[1]}</small>`;
+    } else {
+        result.textContent='Bu saatte ders yok.';
+    }
+}
+
+setInterval(update, 1000); update();
 </script>
 </body>
 </html>
