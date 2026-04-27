@@ -2,168 +2,145 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fikret Aras Bulut | V7.5 Tam Donanımlı Panel</title>
+<title>Fikret Aras Bulut | Profesyonel Ders Paneli</title>
 <style>
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#0f172a,#111827,#1e293b);color:#fff;padding:20px;min-height:100vh}
-    .wrap{max-width:980px;margin:auto}
-    .hero{padding:24px;border-radius:24px;background:rgba(255,255,255,.08);backdrop-filter:blur(10px);margin-bottom:18px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-    .card{background:rgba(255,255,255,.08);padding:18px;border-radius:22px;backdrop-filter:blur(8px);margin-bottom:18px}
-    h1{margin:0 0 8px;font-size:32px;color:#fff}
-    h2{color:#22d3ee;font-size:18px;margin-top:0}
-    .muted{color:#d1d5db;font-size:14px}
-    .big{font-size:28px;font-weight:700;color:#fff}
-    input,button{width:100%;padding:12px;border-radius:14px;border:none;margin-top:10px;font-size:15px}
-    input{background:#e5e7eb;color:#000}
-    button{background:#22d3ee;font-weight:700;cursor:pointer;color:#0f172a}
-    .tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#334155;margin-top:8px;font-size:12px}
-
-    /* Uygulama Kapıları */
-    .gate-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
-    .gate-btn{background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.3);padding:15px;border-radius:18px;text-align:center;cursor:pointer}
-    
-    /* Kazanım Slider */
-    .slider-container{overflow:hidden;position:relative}
-    .slider-track{display:flex;transition:transform 0.4s ease-out}
-    .slide{min-width:100%;padding:10px}
-    .kazanim-box{background:rgba(255,255,255,0.05);padding:15px;border-radius:15px;border-left:4px solid #22d3ee}
-    
-    /* Liste Öğeleri */
-    .daily-item{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px;color:#fff}
-    .active-lesson{background:rgba(34,211,238,0.2);border-radius:10px;color:#22d3ee;font-weight:bold}
-    .search-res-item{padding:8px;background:rgba(255,255,255,0.05);border-radius:8px;margin-top:5px;font-size:14px}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#0f172a,#111827,#1e293b);color:#fff;padding:20px;min-height:100vh}.wrap{max-width:980px;margin:auto}.hero{padding:24px;border-radius:24px;background:rgba(255,255,255,.08);backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(0,0,0,.25);margin-bottom:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.card{background:rgba(255,255,255,.08);padding:18px;border-radius:22px;backdrop-filter:blur(8px)}h1{margin:0 0 8px;font-size:32px}.muted{color:#d1d5db}.big{font-size:28px;font-weight:700}input,button{width:100%;padding:12px;border-radius:14px;border:none;margin-top:10px}input{background:#e5e7eb;color:#000}button{background:#22d3ee;font-weight:700;cursor:pointer;color:#0f172a}.tag{display:inline-block;padding:6px 10px;border-radius:999px;background:#334155;margin-top:8px}.daily-list{margin-top:10px;padding:0;list-style:none}.daily-item{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,0.1);font-size:14px}.active-lesson{background:rgba(34,211,238,0.2);border-radius:10px;color:#22d3ee;font-weight:bold}.search-res{background:rgba(255,255,255,0.05);padding:10px;border-radius:10px;margin-top:5px;font-size:14px;border-left:4px solid #22d3ee}.q-res-item{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;justify-content:space-between;font-size:15px}@media(max-width:600px){h1{font-size:24px}.big{font-size:22px}}
 </style>
 </head>
 <body>
 <div class='wrap'>
     <div class='hero'>
-        <h1>Fikret Aras Bulut</h1>
-        <div class='muted'>Fizik Öğretmeni Profesyonel Panel</div>
-        <div class='tag'>V7.5 • Tüm Özellikler Aktif</div>
-    </div>
-
-    <div class="gate-grid">
-        <div class="gate-btn" onclick="openApp('eokul')">🏫 <b>e-Okul</b></div>
-        <div class="gate-btn" onclick="openApp('mebbis')">🔐 <b>MEBBİS</b></div>
-    </div>
-
-    <div class='card'>
-        <div style="display:flex;justify-content:space-between">
-            <h2>📚 Haftalık Kazanım</h2>
-            <div id="weekCount" style="font-size:12px"></div>
-        </div>
-        <div class='slider-container' id="sliderContainer">
-            <div class='slider-track' id="sliderTrack"></div>
-        </div>
+        <h1>Fikret Aras Bulut | Ders Takip Paneli</h1>
+        <div class='muted'>Fizik Öğretmeni Profesyonel Asistanı</div>
+        <div class='tag'>V5.0 • Günlük Plan Sorgulama • Akıllı Takip</div>
     </div>
     
     <div class='grid'>
         <div class='card'><div class='muted'>Tarih / Saat</div><div id='now' class='big'></div></div>
-        <div class='card'><div class='muted'>Şu An</div><div id='lesson' class='big'>-</div></div>
-        <div class='card'><div class='muted'>Kalan</div><div id='next' class='big'>-</div></div>
+        <div class='card'><div class='muted'>Şu An</div><div id='lesson' class='big'>Yükleniyor...</div></div>
+        <div class='card'><div class='muted'>Durum</div><div id='next' class='big'>-</div></div>
     </div>
 
-    <div class='card'>
-        <h2>📅 Bugünün Programı</h2>
-        <div id='dailySchedule'></div>
+    <div class='card' style='margin-top:18px'>
+        <h2 style='margin-top:0; font-size:20px; color:#22d3ee'>📅 Bugünün Program Akışı</h2>
+        <div id='dailySchedule' class='daily-list'></div>
     </div>
 
-    <div class='card'>
-        <h2>🔍 Sınıf Sorgula</h2>
-        <input type='text' id='classInput' placeholder='Örn: 11-D'>
-        <button onclick='queryByClass()'>Haftalık Planını Getir</button>
-        <div id='classResult' style='margin-top:10px'></div>
+    <div class='card' style='margin-top:18px; border: 1px solid rgba(34,211,238,0.3)'>
+        <h2 style='margin-top:0; font-size:20px'>🔍 Sınıf Ders Programı Bul</h2>
+        <input type='text' id='classInput' placeholder='Örn: 11D, 11/B, 11-A...'>
+        <button onclick='queryByClass()'>Hangi Gün Dersim Var?</button>
+        <div id='classResult' style='margin-top:14px;'></div>
     </div>
 
-    <div class='card' style='background: rgba(34,211,238,0.05); border: 1px solid rgba(34,211,238,0.2)'>
-        <h2>🕒 Tarihe Göre Program</h2>
+    <div class='card' style='margin-top:18px; background: rgba(34,211,238,0.1)'>
+        <h2 style='margin-top:0; font-size:20px'>🕒 Tarihe Göre Program Sorgula</h2>
         <input type='date' id='dateQuery'>
-        <button onclick='queryDayProgram()'>O Günün Derslerini Listele</button>
-        <div id='dayResult' style='margin-top:10px'></div>
+        <button onclick='queryDayProgram()'>O Günün Programını Göster</button>
+        <div id='dayResult' style='margin-top:14px;'></div>
     </div>
 </div>
 
 <script>
-const plan = [
-    {s:'2025-09-08', e:'2025-09-14', t:'11.1.1.1. Vektörlerin özelliklerini açıklar. 11.1.1.2. Vektörleri çizer. 11.1.1.3. Bileşkeleri hesaplar.'},
-    {s:'2026-04-13', e:'2026-04-19', t:'11.2.4.3. Manyetik alanda akım geçen tele etki eden kuvvetin yönünü ve şiddetini analiz eder.'},
-    {s:'2026-04-20', e:'2026-04-26', t:'11.2.4.5. Yüklü parçacıkların manyetik alan içindeki hareketini analiz eder. Sağ el kuralı kullanılır.'},
-    {s:'2026-04-27', e:'2026-05-03', t:'11.2.4.6. Manyetik akı kavramını açıklar. 11.2.4.7. İndüksiyon akımını oluşturan sebepleri analiz eder.'}
-];
-
 const data={1:[['10:30','11:10','11/D'],['11:20','12:00','11/D'],['13:00','13:40','11/B'],['13:50','14:30','11/B'],['14:40','15:20','11/D'],['15:30','16:10','11/D']],2:[['10:30','11:10','11/C'],['11:20','12:00','11/C'],['13:00','13:40','11/C'],['13:50','14:30','11/C'],['14:40','15:20','11/B'],['15:30','16:10','11/B']],3:[['11:20','12:00','11/A'],['13:00','13:40','11/A'],['13:50','14:30','11/A'],['14:40','15:20','11/A'],['15:30','16:10','11/A']],4:[['08:50','09:30','11/C'],['09:40','10:20','11/C'],['10:30','11:10','11/D'],['11:20','12:00','11/D'],['13:00','13:40','11/B'],['13:50','14:30','11/B'],['14:40','15:20','11/A'],['15:30','16:10','11/A']],5:[]};
 const gunler = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
 
-function openApp(app) {
-    let id = app === 'eokul' ? "com.meb.eokulkurum" : "tr.gov.meb.mebbis";
-    let intent = `intent://#Intent;scheme=${id};package=${id};end`;
-    let store = `https://play.google.com/store/apps/details?id=${id}`;
-    let start = Date.now();
-    window.location.href = intent;
-    setTimeout(() => { if(Date.now() - start < 2000) window.location.href = store; }, 1500);
-}
+function toMin(s){let p=s.split(':');return +p[0]*60 + +p[1]}
+function cleanClassName(name) { return name.toUpperCase().replace(/[^A-Z0-9]/g, "").trim(); }
 
+// Yeni Sorgulama Fonksiyonu: Tarihe göre tüm günü getirir
 function queryDayProgram() {
-    let sel = dateQuery.value; if(!sel) return;
-    let dObj = new Date(sel), idx = dObj.getDay(), name = gunler[idx], arr = data[idx] || [];
-    let h = `<b>${sel} - ${name}</b><br>`;
-    if(arr.length === 0) h += "Ders yok.";
-    else arr.forEach(x => { h += `<div class='search-res-item'>${x[0]}-${x[1]} | ${x[2]}</div>`; });
-    dayResult.innerHTML = h;
+    let selectedDate = dateQuery.value;
+    if(!selectedDate) { dayResult.innerHTML = "Lütfen bir tarih seçin."; return; }
+    
+    let dateObj = new Date(selectedDate);
+    let dayIndex = dateObj.getDay();
+    let dayName = gunler[dayIndex];
+    let arr = data[dayIndex] || [];
+
+    let html = `<div style="border-bottom: 2px solid #22d3ee; padding-bottom: 5px; margin-bottom: 10px;">
+                    <b>${selectedDate} - ${dayName} Programı</b>
+                </div>`;
+
+    if(dayIndex === 0 || dayIndex === 6 || (dayIndex === 5 && arr.length === 0)) {
+        html += "Bu tarihte planlanmış bir dersiniz bulunmuyor.";
+    } else if (arr.length === 0) {
+        html += "Bu gün için ders kaydı girilmemiş.";
+    } else {
+        arr.forEach(ders => {
+            html += `<div class="q-res-item">
+                        <span>${ders[0]} - ${ders[1]}</span>
+                        <span style="color:#22d3ee">${ders[2]} Fizik</span>
+                    </div>`;
+        });
+    }
+    dayResult.innerHTML = html;
 }
 
 function queryByClass() {
-    let inp = classInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-    if(!inp) return;
-    let res = "";
-    for(let g in data) {
-        data[g].forEach(d => { if(d[2].replace("/","") === inp) res += `<div class='search-res-item'>${gunler[g]} | ${d[0]}-${d[1]}</div>`; });
+    let input = cleanClassName(classInput.value);
+    if(!input) { classResult.innerHTML = "Lütfen bir sınıf girin."; return; }
+    let found = [];
+    for(let gun in data) {
+        data[gun].forEach(ders => {
+            if(cleanClassName(ders[2]) === input) {
+                found.push({gun: gunler[gun], saat: ders[0] + "-" + ders[1]});
+            }
+        });
     }
-    classResult.innerHTML = res || "Bulunamadı.";
+    if(found.length > 0) {
+        let html = `<b>${classInput.value.toUpperCase()} Programı:</b><br>`;
+        found.forEach(f => { html += `<div class="search-res">${f.gun} | ${f.saat}</div>`; });
+        classResult.innerHTML = html;
+    } else { classResult.innerHTML = "Ders bulunamadı."; }
 }
 
-let curS = 0;
-function buildSlider() {
-    let now = new Date();
-    plan.forEach((item, i) => {
-        let s = new Date(item.s), e = new Date(item.e);
-        if(now >= s && now <= e) curS = i;
-        sliderTrack.innerHTML += `<div class='slide'><div class='kazanim-box'><div class='muted'>Hafta ${i+1}</div><div style='font-size:13px;margin:5px 0'>${item.s} / ${item.e}</div><div>${item.t}</div></div></div>`;
-    });
-    updateSlider();
-}
-function updateSlider() { 
-    sliderTrack.style.transform = `translateX(-${curS * 100}%)`; 
-    weekCount.textContent = `${curS+1}/${plan.length}`;
-}
-
-let startX = 0;
-sliderContainer.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-sliderContainer.addEventListener('touchend', e => {
-    let diff = startX - e.changedTouches[0].clientX;
-    if(Math.abs(diff) > 50) {
-        if(diff > 0 && curS < plan.length - 1) curS++;
-        else if(diff < 0 && curS > 0) curS--;
-        updateSlider();
-    }
-});
-
-function toMin(s){let p=s.split(':'); return +p[0]*60 + +p[1]}
 function update(){
     let d=new Date(), day=d.getDay(), min=d.getHours()*60+d.getMinutes();
-    now.textContent=d.toLocaleTimeString('tr-TR');
-    if(day===0||day===6) { dailySchedule.innerHTML = "İyi tatiller!"; return; }
-    let arr=data[day] || [], html = "";
-    arr.forEach(item => {
-        let s = toMin(item[0]), e = toMin(item[1]), act = (min>=s && min<e);
-        html += `<div class='daily-item ${act?'active-lesson':''}'><span>${item[0]}-${item[1]}</span><span>${item[2]}</span></div>`;
-        if(act) { lesson.textContent = item[2]; next.textContent = (e-min) + " dk"; }
+    now.textContent=d.toLocaleString('tr-TR');
+    if(day===0||day===6||(day===5 && data[5].length===0)){
+        lesson.textContent='Tatil'; next.textContent='Dinlenme Günü';
+        dailySchedule.innerHTML = 'Bugün ders yok.'; return;
+    }
+    let arr=data[day], cur=null, nxt=null;
+    let html = '';
+    arr.forEach((item) => {
+        let s = toMin(item[0]), e = toMin(item[1]);
+        let isActive = (min >= s && min < e), isPast = (min >= e);
+        html += `<div class="daily-item ${isActive ? 'active-lesson' : ''}" style="opacity: ${isPast ? '0.5' : '1'}">
+            <span><b>${item[0]}-${item[1]}</b></span>
+            <span>${item[2]} Fizik</span>
+            <span>${isActive ? '● ŞU AN' : (isPast ? 'Bitti' : 'Bekliyor')}</span>
+        </div>`;
     });
     dailySchedule.innerHTML = html;
+    if (min < toMin(arr[0][0])) {
+        lesson.textContent = 'Henüz Başlamadı'; next.textContent = 'İlk Ders: ' + arr[0][0];
+    } else {
+        for(let i=0; i<arr.length; i++){
+            let start=toMin(arr[i][0]), end=toMin(arr[i][1]);
+            if(min >= start && min < end){
+                cur = {name: arr[i][2], rem: end - min, type: 'ders'};
+                nxt = arr[i+1]; break;
+            } else if(i < arr.length - 1){
+                let nextStart = toMin(arr[i+1][0]);
+                if(min >= end && min < nextStart){
+                    cur = {rem: nextStart - min, type: 'break'};
+                    nxt = arr[i+1]; break;
+                }
+            }
+        }
+        if(cur){
+            if(cur.type === 'ders'){
+                lesson.textContent = cur.name + ' Fizik'; next.textContent = 'Bitişe: ' + cur.rem + ' dk';
+            } else {
+                lesson.textContent = cur.rem > 30 ? 'Öğle Arası 🍴' : 'Teneffüs ☕';
+                next.textContent = nxt[2] + ' (' + cur.rem + ' dk)';
+            }
+        } else { lesson.textContent = 'Dersler Bitti'; next.textContent = 'İyi akşamlar!'; }
+    }
 }
-
-buildSlider(); setInterval(update, 1000); update();
+setInterval(update, 1000); update();
 </script>
 </body>
 </html>
