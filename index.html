@@ -57,63 +57,77 @@
 </div>
 
 <script>
-// Kazanım Verileri (Excel'den aktarıldı)
+// Kazanım Verileri ve Tarih Eşleştirmeleri (Hafta başlangıç tarihleri baz alındı)
 const yillikPlan = [
-    {h: "8-12 Eylül", k: "11.1.1.1. Vektörlerin özelliklerini açıklar.\n11.1.1.2. İki ve üç boyutlu kartezyen koordinat sisteminde vektörleri çizer."},
-    {h: "15-19 Eylül", k: "11.1.1.3. Vektörlerin bileşkelerini farklı yöntemleri kullanarak hesaplar."},
-    {h: "22-26 Eylül", k: "11.1.1.3. Vektörlerin bileşkelerini farklı yöntemleri kullanarak hesaplar."},
-    {h: "29 Eylül - 3 Ekim", k: "11.1.2.1. Sabit ivmeli hareket ile ilgili kavramları açıklar.\n11.1.2.2. Net kuvvetin yönü ve büyüklüğünü belirleyerek ivmenin yönünü ve büyüklüğünü hesaplar."},
-    {h: "6-10 Ekim", k: "11.1.3.1. Sabit ivmeli hareket yapan cisimlerin hareketlerini analiz eder."},
-    {h: "13-17 Ekim", k: "11.1.3.1. Sabit ivmeli hareket yapan cisimlerin hareketlerini analiz eder."},
-    {h: "20-24 Ekim", k: "11.1.3.2. Hava direncinin ihmal edildiği ortamda düşey doğrultuda serbest düşüş, aşağıdan yukarıya ve yukarıdan aşağıya atış hareketlerini analiz eder."},
-    {h: "27-31 Ekim", k: "11.1.3.3. Hava direncinin ihmal edildiği ortamda iki boyutta atış hareketlerini analiz eder."},
-    {h: "3-7 Kasım", k: "11.1.3.3. Hava direncinin ihmal edildiği ortamda iki boyutta atış hareketlerini analiz eder."},
-    {h: "10-14 Kasım", k: "ARA TATİL"},
-    {h: "17-21 Kasım", k: "11.1.3.4. Limit hız kavramını açıklar."},
-    {h: "24-28 Kasım", k: "11.1.4.1. Enerji korunumunu kullanarak cisimlerin hareketlerini analiz eder."},
-    {h: "1-5 Aralık", k: "11.1.4.1. Enerji korunumunu kullanarak cisimlerin hareketlerini analiz eder."},
-    {h: "8-12 Aralık", k: "11.1.5.1. İtme ve çizgisel momentum kavramlarını açıklar.\n11.1.5.2. İtme ile çizgisel momentum değişimi arasında ilişki kurar."},
-    {h: "15-19 Aralık", k: "11.1.5.3. Çizgisel momentumun korunumunu analiz eder."},
-    {h: "22-26 Aralık", k: "11.1.5.4. Çizgisel momentumun korunumu ile ilgili hesaplamalar yapar."},
-    {h: "29 Aralık - 2 Ocak", k: "11.1.6.1. Tork kavramını açıklar.\n11.1.6.2. Torkun bağlı olduğu değişkenleri analiz eder."},
-    {h: "5-9 Ocak", k: "11.1.6.3. Tork ile ilgili matematiksel hesaplamalar yapar.\n11.1.7.1. Cisimlerin denge şartlarını açıklar."},
-    {h: "12-16 Ocak", k: "11.1.7.2. Kütle merkezi ve ağırlık merkezi ile ilgili işlemler yapar."},
-    {h: "19-23 Ocak", k: "1. DÖNEM SONU / SINAV HAFTASI"},
-    {h: "2-6 Şubat", k: "11.1.8.1. Basit makinelerin çalışma ilkelerini açıklar.\n11.1.8.2. Basit makineler ile ilgili hesaplamalar yapar."},
-    {h: "9-13 Şubat", k: "11.1.8.2. Basit makineler ile ilgili hesaplamalar yapar."},
-    {h: "16-20 Şubat", k: "11.2.1.1. Noktasal yükler arasındaki elektriksel kuvveti açıklar.\n11.2.1.2. Noktasal yüklerin oluşturduğu elektriksel alanı açıklar."},
-    {h: "23-27 Şubat", k: "11.2.1.3. Noktasal yüklerin oluşturduğu elektriksel potansiyel enerji ve potansiyeli açıklar."},
-    {h: "2-6 Mart", k: "11.2.1.4. Düzgün bir elektriksel alan içinde yüklü parçacıkların hareketini analiz eder."},
-    {h: "9-13 Mart", k: "11.2.2.1. Sığa (kapasite) kavramını açıklar.\n11.2.2.2. Yüklü levhaların sığasını bağlı olduğu değişkenlerle ilişkilendirir."},
-    {h: "16-20 Mart", k: "11.2.2.3. Kondansatörlerin kullanım alanlarını açıklar."},
-    {h: "23-27 Mart", k: "11.2.3.1. Üzerinden akım geçen düz bir telin oluşturduğu manyetik alanı analiz eder."},
-    {h: "30 Mart - 3 Nisan", k: "11.2.3.2. Manyetik alan içindeki akım geçen tele etki eden kuvveti açıklar."},
-    {h: "6-10 Nisan", k: "ARA TATİL"},
-    {h: "13-17 Nisan", k: "11.2.4.1. Manyetik akı kavramını açıklar.\n11.2.4.2. İndüksiyon akımını oluşturan sebeplere ilişkin analiz yapar."},
-    {h: "20-24 Nisan", k: "11.2.4.3. Öz-indüksiyon akımının oluşum sebebini açıklar."},
-    {h: "27 Nisan - 1 Mayıs", k: "11.2.5.1. Alternatif akımı açıklar.\n11.2.5.2. Alternatif ve doğru akımı karşılaştırır."},
-    {h: "4-8 Mayıs", k: "11.2.5.3. Alternatif ve doğru akım devrelerinde direncin, bobinin ve sığacın davranışını açıklar."},
-    {h: "11-15 Mayıs", k: "11.2.5.4. İndüktans, kapasitans, rezonans ve empedans kavramlarını açıklar."},
-    {h: "18-22 Mayıs", k: "11.2.6.1. Transformatörlerin çalışma prensibini açıklar.\n11.2.6.2. Transformatörlerin kullanım amaçlarını açıklar."},
-    {h: "25-29 Mayıs", k: "GENEL TEKRAR"},
-    {h: "1-5 Haziran", k: "SINAV HAFTASI"}
+    {h: "8-12 Eylül", k: "11.1.1.1. Vektörlerin özelliklerini açıklar.\n11.1.1.2. İki ve üç boyutlu kartezyen koordinat sisteminde vektörleri çizer.", start: new Date(2025, 8, 8)},
+    {h: "15-19 Eylül", k: "11.1.1.3. Vektörlerin bileşkelerini farklı yöntemleri kullanarak hesaplar.", start: new Date(2025, 8, 15)},
+    {h: "22-26 Eylül", k: "11.1.1.3. Vektörlerin bileşkelerini farklı yöntemleri kullanarak hesaplar.", start: new Date(2025, 8, 22)},
+    {h: "29 Eylül - 3 Ekim", k: "11.1.2.1. Sabit ivmeli hareket ile ilgili kavramları açıklar.\n11.1.2.2. Net kuvvetin yönü ve büyüklüğünü belirleyerek ivmenin yönünü ve büyüklüğünü hesaplar.", start: new Date(2025, 8, 29)},
+    {h: "6-10 Ekim", k: "11.1.3.1. Sabit ivmeli hareket yapan cisimlerin hareketlerini analiz eder.", start: new Date(2025, 9, 6)},
+    {h: "13-17 Ekim", k: "11.1.3.1. Sabit ivmeli hareket yapan cisimlerin hareketlerini analiz eder.", start: new Date(2025, 9, 13)},
+    {h: "20-24 Ekim", k: "11.1.3.2. Hava direncinin ihmal edildiği ortamda düşey doğrultuda serbest düşüş, aşağıdan yukarıya ve yukarıdan aşağıya atış hareketlerini analiz eder.", start: new Date(2025, 9, 20)},
+    {h: "27-31 Ekim", k: "11.1.3.3. Hava direncinin ihmal edildiği ortamda iki boyutta atış hareketlerini analiz eder.", start: new Date(2025, 9, 27)},
+    {h: "3-7 Kasım", k: "11.1.3.3. Hava direncinin ihmal edildiği ortamda iki boyutta atış hareketlerini analiz eder.", start: new Date(2025, 10, 3)},
+    {h: "10-14 Kasım", k: "ARA TATİL", start: new Date(2025, 10, 10)},
+    {h: "17-21 Kasım", k: "11.1.3.4. Limit hız kavramını açıklar.", start: new Date(2025, 10, 17)},
+    {h: "24-28 Kasım", k: "11.1.4.1. Enerji korunumunu kullanarak cisimlerin hareketlerini analiz eder.", start: new Date(2025, 10, 24)},
+    {h: "1-5 Aralık", k: "11.1.4.1. Enerji korunumunu kullanarak cisimlerin hareketlerini analiz eder.", start: new Date(2025, 11, 1)},
+    {h: "8-12 Aralık", k: "11.1.5.1. İtme ve çizgisel momentum kavramlarını açıklar.\n11.1.5.2. İtme ile çizgisel momentum değişimi arasında ilişki kurar.", start: new Date(2025, 11, 8)},
+    {h: "15-19 Aralık", k: "11.1.5.3. Çizgisel momentumun korunumunu analiz eder.", start: new Date(2025, 11, 15)},
+    {h: "22-26 Aralık", k: "11.1.5.4. Çizgisel momentumun korunumu ile ilgili hesaplamalar yapar.", start: new Date(2025, 11, 22)},
+    {h: "29 Aralık - 2 Ocak", k: "11.1.6.1. Tork kavramını açıklar.\n11.1.6.2. Torkun bağlı olduğu değişkenleri analiz eder.", start: new Date(2025, 11, 29)},
+    {h: "5-9 Ocak", k: "11.1.6.3. Tork ile ilgili matematiksel hesaplamalar yapar.\n11.1.7.1. Cisimlerin denge şartlarını açıklar.", start: new Date(2026, 0, 5)},
+    {h: "12-16 Ocak", k: "11.1.7.2. Kütle merkezi ve ağırlık merkezi ile ilgili işlemler yapar.", start: new Date(2026, 0, 12)},
+    {h: "19-23 Ocak", k: "1. DÖNEM SONU / SINAV HAFTASI", start: new Date(2026, 0, 19)},
+    {h: "2-6 Şubat", k: "11.1.8.1. Basit makinelerin çalışma ilkelerini açıklar.\n11.1.8.2. Basit makineler ile ilgili hesaplamalar yapar.", start: new Date(2026, 1, 2)},
+    {h: "9-13 Şubat", k: "11.1.8.2. Basit makineler ile ilgili hesaplamalar yapar.", start: new Date(2026, 1, 9)},
+    {h: "16-20 Şubat", k: "11.2.1.1. Noktasal yükler arasındaki elektriksel kuvveti açıklar.\n11.2.1.2. Noktasal yüklerin oluşturduğu elektriksel alanı açıklar.", start: new Date(2026, 1, 16)},
+    {h: "23-27 Şubat", k: "11.2.1.3. Noktasal yüklerin oluşturduğu elektriksel potansiyel enerji ve potansiyeli açıklar.", start: new Date(2026, 1, 23)},
+    {h: "2-6 Mart", k: "11.2.1.4. Düzgün bir elektriksel alan içinde yüklü parçacıkların hareketini analiz eder.", start: new Date(2026, 2, 2)},
+    {h: "9-13 Mart", k: "11.2.2.1. Sığa (kapasite) kavramını açıklar.\n11.2.2.2. Yüklü levhaların sığasını bağlı olduğu değişkenlerle ilişkilendirir.", start: new Date(2026, 2, 9)},
+    {h: "16-20 Mart", k: "11.2.2.3. Kondansatörlerin kullanım alanlarını açıklar.", start: new Date(2026, 2, 16)},
+    {h: "23-27 Mart", k: "11.2.3.1. Üzerinden akım geçen düz bir telin oluşturduğu manyetik alanı analiz eder.", start: new Date(2026, 2, 23)},
+    {h: "30 Mart - 3 Nisan", k: "11.2.3.2. Manyetik alan içindeki akım geçen tele etki eden kuvveti açıklar.", start: new Date(2026, 2, 30)},
+    {h: "6-10 Nisan", k: "ARA TATİL", start: new Date(2026, 3, 6)},
+    {h: "13-17 Nisan", k: "11.2.4.1. Manyetik akı kavramını açıklar.\n11.2.4.2. İndüksiyon akımını oluşturan sebeplere ilişkin analiz yapar.", start: new Date(2026, 3, 13)},
+    {h: "20-24 Nisan", k: "11.2.4.3. Öz-indüksiyon akımının oluşum sebebini açıklar.", start: new Date(2026, 3, 20)},
+    {h: "27 Nisan - 1 Mayıs", k: "11.2.5.1. Alternatif akımı açıklar.\n11.2.5.2. Alternatif ve doğru akımı karşılaştırır.", start: new Date(2026, 3, 27)},
+    {h: "4-8 Mayıs", k: "11.2.5.3. Alternatif ve doğru akım devrelerinde direncin, bobinin ve sığacın davranışını açıklar.", start: new Date(2026, 4, 4)},
+    {h: "11-15 Mayıs", k: "11.2.5.4. İndüktans, kapasitans, rezonans ve empedans kavramlarını açıklar.", start: new Date(2026, 4, 11)},
+    {h: "18-22 Mayıs", k: "11.2.6.1. Transformatörlerin çalışma prensibini açıklar.\n11.2.6.2. Transformatörlerin kullanım amaçlarını açıklar.", start: new Date(2026, 4, 18)},
+    {h: "25-29 Mayıs", k: "GENEL TEKRAR", start: new Date(2026, 4, 25)},
+    {h: "1-5 Haziran", k: "SINAV HAFTASI", start: new Date(2026, 5, 1)}
 ];
 
 let activeWeekIndex = 0;
 
 function initKazanim() {
     let bugun = new Date();
-    // Basit bir hafta bulucu logic
-    activeWeekIndex = 0; 
-    // Örn: Nisan sonundaysak 33. haftaya yakın bir yere odaklar
-    // Manuel kontrol için başlangıçta bugüne en yakın haftayı set edelim
+    // Saati sıfırla ki sadece gün üzerinden karşılaştırma yapsın
+    bugun.setHours(0,0,0,0);
+
+    // Bugüne en uygun haftayı bul
+    let foundIndex = 0;
+    for(let i = 0; i < yillikPlan.length; i++) {
+        // Eğer bugünün tarihi, bu haftanın başlangıcından büyük veya eşitse 
+        // ve bir sonraki haftanın başlangıcından küçükse bu haftadayız demektir.
+        let currentWeekStart = yillikPlan[i].start;
+        let nextWeekStart = yillikPlan[i+1] ? yillikPlan[i+1].start : new Date(2026, 5, 30);
+        
+        if(bugun >= currentWeekStart && bugun < nextWeekStart) {
+            foundIndex = i;
+            break;
+        }
+    }
+    
+    activeWeekIndex = foundIndex;
     updateKazanimUI();
 }
 
 function updateKazanimUI() {
     const item = yillikPlan[activeWeekIndex];
     document.getElementById('currentWeekRange').textContent = item.h;
-    document.getElementById('currentKazanim').textContent = item.k;
+    document.getElementById('currentKazanim').innerText = item.k;
 }
 
 function changeWeek(dir) {
@@ -214,7 +228,7 @@ function update(){
     }
 }
 setInterval(update, 1000); update();
-initKazanim(); // Kazanım sliderını başlat
+initKazanim(); 
 </script>
 </body>
 </html>
