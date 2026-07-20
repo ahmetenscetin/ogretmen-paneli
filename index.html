@@ -15,7 +15,7 @@
     <div class='hero'>
         <h1>Fikret Aras Bulut | Ders Takip Paneli</h1>
         <div class='muted'>Fizik Öğretmeni Profesyonel Asistanı</div>
-        <div class='tag'>V5.0 • Günlük Plan Sorgulama • Akıllı Takip</div>
+        <div class='tag'>V6.0 • Canlı Konu Planı • Akıllı Takip</div>
     </div>
 
     <div class='card' style='margin-bottom:18px; border: 1px solid rgba(255,255,255,0.1)'>
@@ -56,185 +56,166 @@
     </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDHT6dH7LdXlZIh0htt2m5DDSYw9IC4SRM",
+  authDomain: "okul-takip-platformu.firebaseapp.com",
+  projectId: "okul-takip-platformu",
+  storageBucket: "okul-takip-platformu.firebasestorage.app",
+  messagingSenderId: "743250447544",
+  appId: "1:743250447544:web:03d78e46d0347ecc23f84d"
+};
+
+// !!! BURAYA öğretmen panelinde (sağ üstte "Kullanıcı ID") gördüğün UID'yi yapıştır !!!
+const TEACHER_ID = "BURAYA_UID_YAPISTIR";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.yillikPlan = [];
+window.activeWeekIndex = 0;
+
+async function loadWeeklyPlan() {
+    try {
+        const q = query(collection(db, "teachers", TEACHER_ID, "weeklyPlan"), orderBy("startDate", "asc"));
+        const snap = await getDocs(q);
+        const plan = [];
+        snap.forEach(d => {
+            const item = d.data();
+            plan.push({ h: item.label, k: item.topics, start: new Date(item.startDate) });
+        });
+        window.yillikPlan = plan;
+        initKazanim();
+    } catch (e) {
+        document.getElementById('currentWeekRange').textContent = "Konu planı yüklenemedi";
+        document.getElementById('currentKazanim').textContent = "";
+        console.error(e);
+    }
+}
+
+function initKazanim() {
+    const plan = window.yillikPlan;
+    if (!plan || plan.length === 0) {
+        document.getElementById('currentWeekRange').textContent = "Henüz konu planı girilmedi";
+        document.getElementById('currentKazanim').textContent = "";
+        return;
+    }
+    let bugun = new Date();
+    bugun.setHours(0,0,0,0);
+
+    let foundIndex = 0;
+    for (let i = 0; i < plan.length; i++) {
+        let currentWeekStart = plan[i].start;
+        let nextWeekStart = plan[i+1] ? plan[i+1].start : new Date(8640000000000000);
+        if (bugun >= currentWeekStart && bugun < nextWeekStart) { foundIndex = i; break; }
+        if (bugun < plan[0].start) { foundIndex = 0; break; }
+        foundIndex = i; // bugün son haftadan da ilerideyse son haftada kal
+    }
+    window.activeWeekIndex = foundIndex;
+    updateKazanimUI();
+}
+
+function updateKazanimUI() {
+    const plan = window.yillikPlan;
+    const item = plan[window.activeWeekIndex];
+    if (!item) return;
+    document.getElementById('currentWeekRange').textContent = item.h;
+    document.getElementById('currentKazanim').textContent = item.k;
+}
+
+window.changeWeek = function(dir) {
+    const plan = window.yillikPlan;
+    window.activeWeekIndex += dir;
+    if (window.activeWeekIndex < 0) window.activeWeekIndex = 0;
+    if (window.activeWeekIndex >= plan.length) window.activeWeekIndex = plan.length - 1;
+    updateKazanimUI();
+};
+
+loadWeeklyPlan();
+
+// ---------- Günlük ders programı (sabit) ----------
 const data={1:[['10:30','11:10','11/D'],['11:20','12:00','11/D'],['13:00','13:40','11/B'],['13:50','14:30','11/B'],['14:40','15:20','11/D'],['15:30','16:10','11/D']],2:[['10:30','11:10','11/C'],['11:20','12:00','11/C'],['13:00','13:40','11/C'],['13:50','14:30','11/C'],['14:40','15:20','11/B'],['15:30','16:10','11/B']],3:[['11:20','12:00','11/A'],['13:00','13:40','11/A'],['13:50','14:30','11/A'],['14:40','15:20','11/A'],['15:30','16:10','11/A']],4:[['08:50','09:30','11/C'],['09:40','10:20','11/C'],['10:30','11:10','11/D'],['11:20','12:00','11/D'],['13:00','13:40','11/B'],['13:50','14:30','11/B'],['14:40','15:20','11/A'],['15:30','16:10','11/A']],5:[]};
 const gunler = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
 
 function toMin(s){let p=s.split(':');return +p[0]*60 + +p[1]}
 function cleanClassName(name) { return name.toUpperCase().replace(/[^A-Z0-9]/g, "").trim(); }
 
-// Yeni Sorgulama Fonksiyonu: Tarihe göre tüm günü getirir
-function queryDayProgram() {
-    let selectedDate = dateQuery.value;
-    if(!selectedDate) { dayResult.innerHTML = "Lütfen bir tarih seçin."; return; }
-
+window.queryDayProgram = function() {
+    let selectedDate = document.getElementById('dateQuery').value;
+    if(!selectedDate) { document.getElementById('dayResult').innerHTML = "Lütfen bir tarih seçin."; return; }
     let dateObj = new Date(selectedDate);
     let dayIndex = dateObj.getDay();
     let dayName = gunler[dayIndex];
     let arr = data[dayIndex] || [];
-
-    let html = `<div style="border-bottom: 2px solid #22d3ee; padding-bottom: 5px; margin-bottom: 10px;">
-                    <b>${selectedDate} - ${dayName} Programı</b>
-                </div>`;
-
+    let html = `<div style="border-bottom: 2px solid #22d3ee; padding-bottom: 5px; margin-bottom: 10px;"><b>${selectedDate} - ${dayName} Programı</b></div>`;
     if(dayIndex === 0 || dayIndex === 6 || (dayIndex === 5 && arr.length === 0)) {
         html += "Bu tarihte planlanmış bir dersiniz bulunmuyor.";
     } else if (arr.length === 0) {
         html += "Bu gün için ders kaydı girilmemiş.";
     } else {
         arr.forEach(ders => {
-            html += `<div class="q-res-item">
-                        <span>${ders[0]} - ${ders[1]}</span>
-                        <span style="color:#22d3ee">${ders[2]} Fizik</span>
-                    </div>`;
+            html += `<div class="q-res-item"><span>${ders[0]} - ${ders[1]}</span><span style="color:#22d3ee">${ders[2]} Fizik</span></div>`;
         });
     }
-    dayResult.innerHTML = html;
-}
+    document.getElementById('dayResult').innerHTML = html;
+};
 
-function queryByClass() {
-    let input = cleanClassName(classInput.value);
-    if(!input) { classResult.innerHTML = "Lütfen bir sınıf girin."; return; }
+window.queryByClass = function() {
+    let input = cleanClassName(document.getElementById('classInput').value);
+    if(!input) { document.getElementById('classResult').innerHTML = "Lütfen bir sınıf girin."; return; }
     let found = [];
     for(let gun in data) {
         data[gun].forEach(ders => {
-            if(cleanClassName(ders[2]) === input) {
-                found.push({gun: gunler[gun], saat: ders[0] + "-" + ders[1]});
-            }
+            if(cleanClassName(ders[2]) === input) { found.push({gun: gunler[gun], saat: ders[0] + "-" + ders[1]}); }
         });
     }
     if(found.length > 0) {
-        let html = `<b>${classInput.value.toUpperCase()} Programı:</b><br>`;
+        let html = `<b>${document.getElementById('classInput').value.toUpperCase()} Programı:</b><br>`;
         found.forEach(f => { html += `<div class="search-res">${f.gun} | ${f.saat}</div>`; });
-        classResult.innerHTML = html;
-    } else { classResult.innerHTML = "Ders bulunamadı."; }
-}
+        document.getElementById('classResult').innerHTML = html;
+    } else { document.getElementById('classResult').innerHTML = "Ders bulunamadı."; }
+};
 
 function update(){
     let d=new Date(), day=d.getDay(), min=d.getHours()*60+d.getMinutes();
-    now.textContent=d.toLocaleString('tr-TR');
+    document.getElementById('now').textContent=d.toLocaleString('tr-TR');
     if(day===0||day===6||(day===5 && data[5].length===0)){
-        lesson.textContent='Tatil'; next.textContent='Dinlenme Günü';
-        dailySchedule.innerHTML = 'Bugün ders yok.'; return;
+        document.getElementById('lesson').textContent='Tatil'; document.getElementById('next').textContent='Dinlenme Günü';
+        document.getElementById('dailySchedule').innerHTML = 'Bugün ders yok.'; return;
     }
     let arr=data[day], cur=null, nxt=null;
     let html = '';
     arr.forEach((item) => {
         let s = toMin(item[0]), e = toMin(item[1]);
         let isActive = (min >= s && min < e), isPast = (min >= e);
-        html += `<div class="daily-item ${isActive ? 'active-lesson' : ''}" style="opacity: ${isPast ? '0.5' : '1'}">
-            <span><b>${item[0]}-${item[1]}</b></span>
-            <span>${item[2]} Fizik</span>
-            <span>${isActive ? '● ŞU AN' : (isPast ? 'Bitti' : 'Bekliyor')}</span>
-        </div>`;
+        html += `<div class="daily-item ${isActive ? 'active-lesson' : ''}" style="opacity: ${isPast ? '0.5' : '1'}"><span><b>${item[0]}-${item[1]}</b></span><span>${item[2]} Fizik</span><span>${isActive ? '● ŞU AN' : (isPast ? 'Bitti' : 'Bekliyor')}</span></div>`;
     });
-    dailySchedule.innerHTML = html;
+    document.getElementById('dailySchedule').innerHTML = html;
     if (min < toMin(arr[0][0])) {
-        lesson.textContent = 'Henüz Başlamadı'; next.textContent = 'İlk Ders: ' + arr[0][0];
+        document.getElementById('lesson').textContent = 'Henüz Başlamadı'; document.getElementById('next').textContent = 'İlk Ders: ' + arr[0][0];
     } else {
         for(let i=0; i<arr.length; i++){
             let start=toMin(arr[i][0]), end=toMin(arr[i][1]);
-            if(min >= start && min < end){
-                cur = {name: arr[i][2], rem: end - min, type: 'ders'};
-                nxt = arr[i+1]; break;
-            } else if(i < arr.length - 1){
+            if(min >= start && min < end){ cur = {name: arr[i][2], rem: end - min, type: 'ders'}; nxt = arr[i+1]; break; }
+            else if(i < arr.length - 1){
                 let nextStart = toMin(arr[i+1][0]);
-                if(min >= end && min < nextStart){
-                    cur = {rem: nextStart - min, type: 'break'};
-                    nxt = arr[i+1]; break;
-                }
+                if(min >= end && min < nextStart){ cur = {rem: nextStart - min, type: 'break'}; nxt = arr[i+1]; break; }
             }
         }
         if(cur){
             if(cur.type === 'ders'){
-                lesson.textContent = cur.name + ' Fizik'; next.textContent = 'Bitişe: ' + cur.rem + ' dk';
+                document.getElementById('lesson').textContent = cur.name + ' Fizik'; document.getElementById('next').textContent = 'Bitişe: ' + cur.rem + ' dk';
             } else {
-                lesson.textContent = cur.rem > 30 ? 'Öğle Arası 🍴' : 'Teneffüs ☕';
-                next.textContent = nxt[2] + ' (' + cur.rem + ' dk)';
+                document.getElementById('lesson').textContent = cur.rem > 30 ? 'Öğle Arası 🍴' : 'Teneffüs ☕';
+                document.getElementById('next').textContent = nxt[2] + ' (' + cur.rem + ' dk)';
             }
-        } else { lesson.textContent = 'Dersler Bitti'; next.textContent = 'İyi akşamlar!'; }
+        } else { document.getElementById('lesson').textContent = 'Dersler Bitti'; document.getElementById('next').textContent = 'İyi akşamlar!'; }
     }
 }
 setInterval(update, 1000); update();
-
-// Kazanım Verileri ve Tarih Eşleştirmeleri (Hafta başlangıç tarihleri baz alındı)
-const yillikPlan = [
-    {h: "8-12 Eylül", k: "11.1.1.1. Vektörlerin özelliklerini açıklar.\n11.1.1.2. İki ve üç boyutlu kartezyen koordinat sisteminde vektörleri çizer.", start: new Date(2025, 8, 8)},
-    {h: "15-19 Eylül", k: "11.1.1.3. Vektörlerin bileşkelerini farklı yöntemleri kullanarak hesaplar.", start: new Date(2025, 8, 15)},
-    {h: "22-26 Eylül", k: "11.1.1.3. Vektörlerin bileşkelerini farklı yöntemleri kullanarak hesaplar.", start: new Date(2025, 8, 22)},
-    {h: "29 Eylül - 3 Ekim", k: "11.1.2.1. Sabit ivmeli hareket ile ilgili kavramları açıklar.\n11.1.2.2. Net kuvvetin yönü ve büyüklüğünü belirleyerek ivmenin yönünü ve büyüklüğünü hesaplar.", start: new Date(2025, 8, 29)},
-    {h: "6-10 Ekim", k: "11.1.3.1. Sabit ivmeli hareket yapan cisimlerin hareketlerini analiz eder.", start: new Date(2025, 9, 6)},
-    {h: "13-17 Ekim", k: "11.1.3.1. Sabit ivmeli hareket yapan cisimlerin hareketlerini analiz eder.", start: new Date(2025, 9, 13)},
-    {h: "20-24 Ekim", k: "11.1.3.2. Hava direncinin ihmal edildiği ortamda düşey doğrultuda serbest düşüş, aşağıdan yukarıya ve yukarıdan aşağıya atış hareketlerini analiz eder.", start: new Date(2025, 9, 20)},
-    {h: "27-31 Ekim", k: "11.1.3.3. Hava direncinin ihmal edildiği ortamda iki boyutta atış hareketlerini analiz eder.", start: new Date(2025, 9, 27)},
-    {h: "3-7 Kasım", k: "11.1.3.3. Hava direncinin ihmal edildiği ortamda iki boyutta atış hareketlerini analiz eder.", start: new Date(2025, 10, 3)},
-    {h: "10-14 Kasım", k: "ARA TATİL", start: new Date(2025, 10, 10)},
-    {h: "17-21 Kasım", k: "11.1.3.4. Limit hız kavramını açıklar.", start: new Date(2025, 10, 17)},
-    {h: "24-28 Kasım", k: "11.1.4.1. Enerji korunumunu kullanarak cisimlerin hareketlerini analiz eder.", start: new Date(2025, 10, 24)},
-    {h: "1-5 Aralık", k: "11.1.4.1. Enerji korunumunu kullanarak cisimlerin hareketlerini analiz eder.", start: new Date(2025, 11, 1)},
-    {h: "8-12 Aralık", k: "11.1.5.1. İtme ve çizgisel momentum kavramlarını açıklar.\n11.1.5.2. İtme ile çizgisel momentum değişimi arasında ilişki kurar.", start: new Date(2025, 11, 8)},
-    {h: "15-19 Aralık", k: "11.1.5.3. Çizgisel momentumun korunumunu analiz eder.", start: new Date(2025, 11, 15)},
-    {h: "22-26 Aralık", k: "11.1.5.4. Çizgisel momentumun korunumu ile ilgili hesaplamalar yapar.", start: new Date(2025, 11, 22)},
-    {h: "29 Aralık - 2 Ocak", k: "11.1.6.1. Tork kavramını açıklar.\n11.1.6.2. Torkun bağlı olduğu değişkenleri analiz eder.", start: new Date(2025, 11, 29)},
-    {h: "5-9 Ocak", k: "11.1.6.3. Tork ile ilgili matematiksel hesaplamalar yapar.\n11.1.7.1. Cisimlerin denge şartlarını açıklar.", start: new Date(2026, 0, 5)},
-    {h: "12-16 Ocak", k: "11.1.7.2. Kütle merkezi ve ağırlık merkezi ile ilgili işlemler yapar.", start: new Date(2026, 0, 12)},
-    {h: "19-23 Ocak", k: "1. DÖNEM SONU / SINAV HAFTASI", start: new Date(2026, 0, 19)},
-    {h: "2-6 Şubat", k: "11.1.8.1. Basit makinelerin çalışma ilkelerini açıklar.\n11.1.8.2. Basit makineler ile ilgili hesaplamalar yapar.", start: new Date(2026, 1, 2)},
-    {h: "9-13 Şubat", k: "11.1.8.2. Basit makineler ile ilgili hesaplamalar yapar.", start: new Date(2026, 1, 9)},
-    {h: "16-20 Şubat", k: "11.2.1.1. Noktasal yükler arasındaki elektriksel kuvveti açıklar.\n11.2.1.2. Noktasal yüklerin oluşturduğu elektriksel alanı açıklar.", start: new Date(2026, 1, 16)},
-    {h: "23-27 Şubat", k: "11.2.1.3. Noktasal yüklerin oluşturduğu elektriksel potansiyel enerji ve potansiyeli açıklar.", start: new Date(2026, 1, 23)},
-    {h: "2-6 Mart", k: "11.2.1.4. Düzgün bir elektriksel alan içinde yüklü parçacıkların hareketini analiz eder.", start: new Date(2026, 2, 2)},
-    {h: "9-13 Mart", k: "11.2.2.1. Sığa (kapasite) kavramını açıklar.\n11.2.2.2. Yüklü levhaların sığasını bağlı olduğu değişkenlerle ilişkilendirir.", start: new Date(2026, 2, 9)},
-    {h: "16-20 Mart", k: "11.2.2.3. Kondansatörlerin kullanım alanlarını açıklar.", start: new Date(2026, 2, 16)},
-    {h: "23-27 Mart", k: "11.2.3.1. Üzerinden akım geçen düz bir telin oluşturduğu manyetik alanı analiz eder.", start: new Date(2026, 2, 23)},
-    {h: "30 Mart - 3 Nisan", k: "11.2.3.2. Manyetik alan içindeki akım geçen tele etki eden kuvveti açıklar.", start: new Date(2026, 2, 30)},
-    {h: "6-10 Nisan", k: "ARA TATİL", start: new Date(2026, 3, 6)},
-    {h: "13-17 Nisan", k: "11.2.4.1. Manyetik akı kavramını açıklar.\n11.2.4.2. İndüksiyon akımını oluşturan sebeplere ilişkin analiz yapar.", start: new Date(2026, 3, 13)},
-    {h: "20-24 Nisan", k: "11.2.4.3. Öz-indüksiyon akımının oluşum sebebini açıklar.", start: new Date(2026, 3, 20)},
-    {h: "27 Nisan - 1 Mayıs", k: "11.2.5.1. Alternatif akımı açıklar.\n11.2.5.2. Alternatif ve doğru akımı karşılaştırır.", start: new Date(2026, 3, 27)},
-    {h: "4-8 Mayıs", k: "11.2.5.3. Alternatif ve doğru akım devrelerinde direncin, bobinin ve sığacın davranışını açıklar.", start: new Date(2026, 4, 4)},
-    {h: "11-15 Mayıs", k: "11.2.5.4. İndüktans, kapasitans, rezonans ve empedans kavramlarını açıklar.", start: new Date(2026, 4, 11)},
-    {h: "18-22 Mayıs", k: "11.2.6.1. Transformatörlerin çalışma prensibini açıklar.\n11.2.6.2. Transformatörlerin kullanım amaçlarını açıklar.", start: new Date(2026, 4, 18)},
-    {h: "25-29 Mayıs", k: "GENEL TEKRAR", start: new Date(2026, 4, 25)},
-    {h: "1-5 Haziran", k: "SINAV HAFTASI", start: new Date(2026, 5, 1)}
-];
-
-let activeWeekIndex = 0;
-
-function initKazanim() {
-    let bugun = new Date();
-    activeWeekIndex = 0;
-    bugun.setHours(0,0,0,0);
-
-    let foundIndex = 0;
-    for(let i = 0; i < yillikPlan.length; i++) {
-        let currentWeekStart = yillikPlan[i].start;
-        let nextWeekStart = yillikPlan[i+1] ? yillikPlan[i+1].start : new Date(2026, 5, 30);
-
-        if(bugun >= currentWeekStart && bugun < nextWeekStart) {
-            foundIndex = i;
-            break;
-        }
-    }
-
-    activeWeekIndex = foundIndex;
-    updateKazanimUI();
-}
-
-function updateKazanimUI() {
-    const item = yillikPlan[activeWeekIndex];
-    document.getElementById('currentWeekRange').textContent = item.h;
-    document.getElementById('currentKazanim').textContent = item.k;
-}
-
-function changeWeek(dir) {
-    activeWeekIndex += dir;
-    if(activeWeekIndex < 0) activeWeekIndex = 0;
-    if(activeWeekIndex >= yillikPlan.length) activeWeekIndex = yillikPlan.length - 1;
-    updateKazanimUI();
-}
-
-initKazanim();
 </script>
 </body>
 </html>
