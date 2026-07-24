@@ -127,7 +127,7 @@ async function loadTeachers() {
         </div>
       </div>
       <div class="actions">
-        <button class="small" onclick="window.open('ogretmen-paneli.html?as=${d.id}', '_blank')">Panele Git</button>
+        <button class="small" onclick="window.open('index.html?as=${d.id}', '_blank')">Panele Git</button>
         <button class="secondary small" onclick="toggleActive('${d.id}', ${isActive})">${isActive ? 'Pasife Al' : 'Aktif Et'}</button>
         <button class="danger small" onclick="wipeTeacherData('${d.id}')">Verilerini Sil</button>
       </div>`;
