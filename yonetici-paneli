@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yönetici Paneli</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:linear-gradient(135deg,#0f172a,#111827,#1e293b);color:#fff;padding:20px;min-height:100vh}
+.wrap{max-width:800px;margin:auto}
+.hero{padding:24px;border-radius:24px;background:rgba(255,255,255,.08);backdrop-filter:blur(10px);margin-bottom:18px}
+.card{background:rgba(255,255,255,.08);padding:18px;border-radius:22px;backdrop-filter:blur(8px);margin-bottom:16px}
+h1{margin:0 0 8px;font-size:26px}
+h2{margin-top:0;font-size:19px;color:#22d3ee}
+.muted{color:#d1d5db;font-size:14px}
+input,button{width:100%;padding:12px;border-radius:14px;border:none;margin-top:10px;font-size:15px}
+input{background:#e5e7eb;color:#000}
+button{background:#22d3ee;font-weight:700;cursor:pointer;color:#0f172a}
+button.secondary{background:#334155;color:#fff}
+button.danger{background:#ef4444;color:#fff}
+button.small{width:auto;padding:6px 12px;margin:0;font-size:13px}
+.hidden{display:none !important}
+.err{color:#fca5a5;font-size:14px;margin-top:8px}
+.teacher-row{padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.1)}
+.teacher-row .info{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.status-active{color:#86efac;font-size:13px}
+.status-inactive{color:#fca5a5;font-size:13px}
+.actions{display:flex;gap:8px;margin-top:8px}
+.topbar{display:flex;justify-content:space-between;align-items:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="authScreen">
+    <div class="hero"><h1>Yönetici Paneli</h1><div class="muted">Sadece yönetici hesabı erişebilir</div></div>
+    <div class="card">
+      <input type="email" id="authEmail" placeholder="E-posta">
+      <input type="password" id="authPassword" placeholder="Şifre">
+      <button onclick="handleAuth()">Giriş Yap</button>
+      <div id="authError" class="err"></div>
+    </div>
+  </div>
+
+  <div id="dashboard" class="hidden">
+    <div class="hero topbar">
+      <h1>Yönetici Paneli</h1>
+      <button class="secondary" style="width:auto;padding:10px 16px" onclick="handleLogout()">Çıkış</button>
+    </div>
+    <div class="card">
+      <h2>Öğretmenler</h2>
+      <div id="teachersList" class="muted">Yükleniyor...</div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDHT6dH7LdXlZIh0htt2m5DDSYw9IC4SRM",
+  authDomain: "okul-takip-platformu.firebaseapp.com",
+  projectId: "okul-takip-platformu",
+  storageBucket: "okul-takip-platformu.firebasestorage.app",
+  messagingSenderId: "743250447544",
+  appId: "1:743250447544:web:03d78e46d0347ecc23f84d"
+};
+
+// !!! Kendi Kullanıcı ID'ni (öğretmen panelinde görünen) buraya yapıştır !!!
+const ADMIN_UID = "BURAYA_YONETICI_UID_YAPISTIR";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+window.handleAuth = async function() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl = document.getElementById('authError');
+  errEl.textContent = "";
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    if (cred.user.uid !== ADMIN_UID) {
+      await signOut(auth);
+      errEl.textContent = "Bu hesabın yönetici yetkisi yok.";
+    }
+  } catch (e) {
+    errEl.textContent = "Giriş başarısız: " + e.code;
+  }
+};
+
+window.handleLogout = function() { signOut(auth); };
+
+onAuthStateChanged(auth, (user) => {
+  if (user && user.uid === ADMIN_UID) {
+    document.getElementById('authScreen').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+    loadTeachers();
+  } else {
+    document.getElementById('authScreen').classList.remove('hidden');
+    document.getElementById('dashboard').classList.add('hidden');
+  }
+});
+
+function escapeHtml(str) {
+  const d = document.createElement('div'); d.textContent = str ?? ""; return d.innerHTML;
+}
+
+async function loadTeachers() {
+  const el = document.getElementById('teachersList');
+  el.innerHTML = "Yükleniyor...";
+  const snap = await getDocs(collection(db, "teachers"));
+  if (snap.empty) { el.innerHTML = "Henüz öğretmen yok."; return; }
+  el.innerHTML = "";
+  snap.forEach(d => {
+    const t = d.data();
+    const isActive = t.isActive !== false;
+    const row = document.createElement('div'); row.className = 'teacher-row';
+    row.innerHTML = `
+      <div class="info">
+        <div>
+          <b>${escapeHtml(t.email || d.id)}</b><br>
+          <span class="${isActive ? 'status-active' : 'status-inactive'}">${isActive ? '● Aktif' : '● Pasif'}</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="secondary small" onclick="toggleActive('${d.id}', ${isActive})">${isActive ? 'Pasife Al' : 'Aktif Et'}</button>
+        <button class="danger small" onclick="wipeTeacherData('${d.id}')">Verilerini Sil</button>
+      </div>`;
+    el.appendChild(row);
+  });
+}
+
+window.toggleActive = async function(teacherId, currentlyActive) {
+  await updateDoc(doc(db, "teachers", teacherId), { isActive: !currentlyActive });
+  loadTeachers();
+};
+
+window.wipeTeacherData = async function(teacherId) {
+  if (!confirm("Bu öğretmenin TÜM öğrenci/ödev/sınıf/plan verilerini kalıcı olarak silmek istediğine emin misin? Bu işlem geri alınamaz.")) return;
+  const subcollections = ["students", "assignments", "classes", "weeklyPlan", "schedule"];
+  for (const sub of subcollections) {
+    const snap = await getDocs(collection(db, "teachers", teacherId, sub));
+    for (const d of snap.docs) {
+      await deleteDoc(doc(db, "teachers", teacherId, sub, d.id));
+    }
+  }
+  alert("Veriler silindi.");
+  loadTeachers();
+};
+</script>
+</body>
+</html>
